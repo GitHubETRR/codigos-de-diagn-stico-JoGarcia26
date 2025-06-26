@@ -24,7 +24,7 @@ int main(){
     char nombre[MAX_NOMBRE];
     int edad;
 
-    cargarArchivo(&lista, "agenda.dat");
+    cargarArchivo(&lista, "agenda.txt");
 
     do {
         printf("\n--- AGENDA ---\n");
@@ -53,7 +53,7 @@ int main(){
                 break;
 
             case 3:
-                guardarArchivo(lista, "agenda.dat");
+                guardarArchivo(lista, "agenda.txt");
                 liberarLista(lista);
                 printf("Datos guardados. Saliendo...\n");
                 break;
