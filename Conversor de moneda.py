@@ -30,7 +30,7 @@ def main():
     
     resultado = convertir_a_pesos(importe, moneda)
     if resultado is not None:
-        print(f"\n💰 {importe:.2f} {moneda} equivalen a {resultado:,.2f} pesos argentinos (ARS).")
+        print(f"\n {importe:.2f} {moneda} equivalen a {resultado:,.2f} pesos argentinos (ARS).")
 
 if __name__ == "__main__":
     main()
