@@ -1,6 +1,6 @@
 def obtener_tasa(codigo_moneda):
     """
-    Retorna la tasa de cambio de 1 unidad de la moneda dada a ARS.
+    esto retorna la tasa de cambio de 1 unidad de la moneda dada a ARS.
     Las tasas están en ARS por unidad de moneda extranjera.
     """
     tasas = {
@@ -13,12 +13,11 @@ def obtener_tasa(codigo_moneda):
 
 def convertir(importe, desde, hacia):
     """
-    Convierte un importe de una moneda 'desde' a otra moneda 'hacia',
+    convierte un importe de una moneda 'desde' a otra moneda 'hacia',
     usando ARS como moneda intermedia.
     """
     desde = desde.upper()
     hacia = hacia.upper()
-
     tasa_desde = obtener_tasa(desde)
     tasa_hacia = obtener_tasa(hacia)
 
@@ -35,7 +34,6 @@ def main():
     importe = float(input("Ingrese el importe a convertir: "))
     desde = input("Moneda origen (USD, EUR, GBP, JPY): ")
     hacia = input("Moneda destino (USD, EUR, GBP, JPY): ")
-
     resultado = convertir(importe, desde, hacia)
     if resultado is not None:
         print(f"{importe:.2f} {desde.upper()} equivalen a {resultado:.2f} {hacia.upper()}")
