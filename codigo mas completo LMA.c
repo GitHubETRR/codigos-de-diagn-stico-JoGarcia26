@@ -27,7 +27,7 @@ int main(){
     cargarArchivo(&lista, "agenda.txt");
 
     do {
-        printf("\n--- AGENDA ---\n");
+        printf("\n AGENDA \n");
         printf("1. Agregar persona\n");
         printf("2. Mostrar agenda\n");
         printf("3. Guardar y salir\n");
