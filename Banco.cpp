@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// ------------------- PERSONA -------------------
+// PERSONA 
 
 class Persona {
 protected:
@@ -23,7 +23,7 @@ public:
     string getNombre() const { return nombre; }
 };
 
-// ------------------- CUENTAS -------------------
+// CUENTAS
 
 class Cuenta {
 protected:
@@ -86,7 +86,7 @@ public:
     }
 };
 
-// ------------------- CLIENTE -------------------
+// CLIENTE
 
 class Cliente : public Persona {
     vector<shared_ptr<Cuenta>> cuentas;
@@ -116,7 +116,7 @@ public:
     }
 };
 
-// ------------------- BANCO -------------------
+// BANCO
 
 class Banco {
     vector<Cliente> clientes;
@@ -258,7 +258,6 @@ public:
     }
 };
 
-// ------------------- MAIN -------------------
 
 int main() {
     Banco b;
