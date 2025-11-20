@@ -1,90 +1,118 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <map>
+#include <limits>
 using namespace std;
 
+double calcularMedia(const vector<double>& notas) {
+    double suma = 0;
+    for(double n : notas) suma += n;
+    return suma / notas.size();
+}
 
-class Materia {
-protected:
-    string nombre;
-    vector<int> notas;
-public:
-    Materia(string n, vector<int> ns) : nombre(n), notas(ns) {}
-    string getNombre() { return nombre; }
-    vector<int> getNotas() { return notas; }
-};
+double calcularMediana(vector<double> notas) {
+    sort(notas.begin(), notas.end());
+    int n = notas.size();
 
-// Clase hija con análisis estadístico
-class AnalisisMateria : public Materia {
-public:
-    AnalisisMateria(string n, vector<int> ns) : Materia(n, ns) {}
-
-    double calcularMedia() {
-        double suma = 0;
-        for (int n : notas) suma += n;
-        return suma / notas.size();
+    if (n % 2 == 0) {
+        return (notas[n/2 - 1] + notas[n/2]) / 2;
+    } else {
+        return notas[n/2];
     }
+}
 
-    double calcularMediana() {
-        vector<int> copia = notas;
-        sort(copia.begin(), copia.end());
-        int n = copia.size();
-        if (n % 2 == 0)
-            return (copia[n/2 - 1] + copia[n/2]) / 2.0;
-        else
-            return copia[n/2];
-    }
+vector<double> calcularModa(const vector<double>& notas) {
+    vector<double> modas;
+    int maxFrecuencia = 0;
+    for (double num : notas) {
+        int frecuencia = count(notas.begin(), notas.end(), num);
 
-    int calcularModa() {
-        map<int,int> freq;
-        for (int n : notas) freq[n]++;
-        int moda = notas[0], maxFreq = 0;
-        for (auto& p : freq) {
-            if (p.second > maxFreq) {
-                maxFreq = p.second;
-                moda = p.first;
-            }
+        if (frecuencia > maxFrecuencia) {
+            maxFrecuencia = frecuencia;
+            modas = {num};
         }
-        return moda;
+        else if (frecuencia == maxFrecuencia &&
+                 find(modas.begin(), modas.end(), num) == modas.end()) {
+            modas.push_back(num);
+        }
+    }
+    return modas;
+}
+vector<double> ingresarNotas() {
+    int cantidad;
+    cout << "¿Cuántas notas vas a ingresar?: ";
+    cin >> cantidad;
+
+    while(cin.fail() || cantidad <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Numero invalido. Ingresalo de nuevo: ";
+        cin >> cantidad;
     }
 
-    void mostrarResultados() {
-        cout << "Materia: " << nombre << endl;
-        cout << "  Media   = " << calcularMedia() << endl;
-        cout << "  Mediana = " << calcularMediana() << endl;
-        cout << "  Moda    = " << calcularModa() << endl;
-        cout << "----------------------------------" << endl;
+    vector<double> notas(cantidad);
+
+    for (int i = 0; i < cantidad; i++) {
+        cout << "Nota " << i+1 << ": ";
+        cin >> notas[i];
+
+        while(cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Nota invalida. Ingresala de nuevo: ";
+            cin >> notas[i];
+        }
     }
-};
+    return notas;
+}
 
 int main() {
-    // Datos de la tabla
-    vector<int> matematica = {6,6,7,10,3,2,5,7,2,10,8,7,7,3,3,7,8,3,6,9,9,7,7,8,4};
-    vector<int> fisica     = {4,8,8,8,6,7,6,5,6,4,7,6,10,6,6,5,8,8,7,5,4,7,9,9,4};
-    vector<int> computacion= {8,5,7,7,9,6,8,4,3,8,3,9,9,4,9,8,6,6,8,7,4,7,5,8,7};
-    vector<int> historia   = {9,7,8,7,7,2,3,9,9,9,5,7,6,5,8,6,3,7,8,8,3,4,9,10,9};
-    vector<int> geografia  = {9,5,7,5,7,4,4,6,9,6,6,3,3,8,6,8,5,5,7,9,3,3,5,7,8};
-    vector<int> civica     = {7,7,5,6,8,7,2,5,5,9,5,5,6,3,6,8,7,9,7,9,5,6,9,10,7};
-    vector<int> biologia   = {6,7,8,8,3,5,3,7,8,9,9,9,3,3,6,6,9,8,2,8,7,4,4,6,4};
-    vector<int> quimica    = {4,9,4,6,6,8,4,5,6,9,3,9,8,5,7,5,5,4,5,7,7,7,7,8,6};
+    int opcion;
 
-    
-    vector<AnalisisMateria> materias = {
-        AnalisisMateria("Matemática", matematica),
-        AnalisisMateria("Física", fisica),
-        AnalisisMateria("Computación", computacion),
-        AnalisisMateria("Historia", historia),
-        AnalisisMateria("Geografía", geografia),
-        AnalisisMateria("Cívica", civica),
-        AnalisisMateria("Biología", biologia),
-        AnalisisMateria("Química", quimica)
-    };
+    do {
+        cout << "\n MENU DE NOTAS \n";
+        cout << "1) Ingresar notas y calcular Media\n";
+        cout << "2) Ingresar notas y calcular Mediana\n";
+        cout << "3) Ingresar notas y calcular Moda\n";
+        cout << "4) Salir\n";
+        cout << "Opcion: ";
+        cin >> opcion;
 
-    // Mostrar resultados
-    for (auto& m : materias) {
-        m.mostrarResultados();
-    }
+        if(cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            opcion = -1; 
+        }
+
+        switch(opcion) {
+        case 1: {
+            vector<double> notas = ingresarNotas();
+            cout << "\nMedia: " << calcularMedia(notas) << endl;
+            break;
+        }
+        case 2: {
+            vector<double> notas = ingresarNotas();
+            cout << "\nMediana: " << calcularMediana(notas) << endl;
+            break;
+        }
+        case 3: {
+            vector<double> notas = ingresarNotas();
+            vector<double> moda = calcularModa(notas);
+
+            cout << "\nModa(s): ";
+            for(double m : moda) cout << m << " ";
+            cout << endl;
+            break;
+        }
+        case 4:
+            cout << "Saliendo..." << endl;
+            break;
+
+        default:
+            cout << (" Opción inválida. Intenta de nuevo.\n";
+        }
+
+    } while(opcion != 4);
 
     return 0;
 }
