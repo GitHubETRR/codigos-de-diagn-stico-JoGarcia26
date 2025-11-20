@@ -176,7 +176,7 @@ int main() {
     int opcion;
 
     do {
-        cout << "\n===== MENU BANCO =====\n";
+        cout << "\nMENU DEL BANCO n";
         cout << "1. Crear cliente\n";
         cout << "2. Crear cuenta\n";
         cout << "3. Depositar\n";
@@ -201,5 +201,3 @@ int main() {
 
     return 0;
 }
-
-#Hecho con CHATGPT
