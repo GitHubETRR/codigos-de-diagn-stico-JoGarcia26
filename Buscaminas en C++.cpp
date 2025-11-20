@@ -1,9 +1,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <limits>
 using namespace std;
 
-#define Minas_Filas_Columnas 5
+#define Minas_Filas_Columnas 8
 
 class Celda {
 public:
@@ -45,6 +46,7 @@ public:
             }
             anterior = nuevaCelda;
         }
+
         celdas = cabeza;
     }
 };
@@ -53,6 +55,7 @@ class Tablero : public Fila {
 private:
     int filas;
     int columnas;
+
 public:
     Fila* cabeza;
 
@@ -60,28 +63,32 @@ public:
         filas = f;
         columnas = c;
         cabeza = nullptr;
+
         Fila* anterior = nullptr;
 
         for (int i = 0; i < filas; i++) {
             Fila* nuevaFila = new Fila(i, columnas);
+
             if (cabeza == nullptr) {
                 cabeza = nuevaFila;
             } else {
                 anterior->siguiente = nuevaFila;
             }
+
             anterior = nuevaFila;
         }
     }
 
     void colocarMinas(int cantidadMinas) {
-        srand(time(NULL));
         int minasColocadas = 0;
+
         while (minasColocadas < cantidadMinas) {
             int f = rand() % filas;
             int c = rand() % columnas;
 
             Fila* filaActual = cabeza;
             for (int i = 0; i < f; i++) filaActual = filaActual->siguiente;
+
             Celda* celdaActual = filaActual->celdas;
             for (int j = 0; j < c; j++) celdaActual = celdaActual->siguiente;
 
@@ -102,15 +109,18 @@ public:
                 for (int j = 0; j < c; j++) celdaActual = celdaActual->siguiente;
 
                 int minas = 0;
+
                 for (int df = -1; df <= 1; df++) {
                     for (int dc = -1; dc <= 1; dc++) {
                         if (df == 0 && dc == 0) continue;
 
                         int nf = f + df;
                         int nc = c + dc;
+
                         if (nf >= 0 && nf < filas && nc >= 0 && nc < columnas) {
                             Fila* filaVecina = cabeza;
                             for (int k = 0; k < nf; k++) filaVecina = filaVecina->siguiente;
+
                             Celda* celdaVecina = filaVecina->celdas;
                             for (int l = 0; l < nc; l++) celdaVecina = celdaVecina->siguiente;
 
@@ -118,6 +128,7 @@ public:
                         }
                     }
                 }
+
                 celdaActual->minasRededor = minas;
             }
         }
@@ -129,6 +140,7 @@ public:
             for (int i = 0; i < f; i++) filaActual = filaActual->siguiente;
 
             Celda* celdaActual = filaActual->celdas;
+
             for (int c = 0; c < columnas; c++) {
                 if (celdaActual->hayMina) cout << "* ";
                 else cout << celdaActual->minasRededor << " ";
@@ -139,14 +151,14 @@ public:
     }
 
     bool descubrir(int f, int c) {
-        if (f < 0 || f >= filas || c < 0 || c >= columnas) return false;
-
         Fila* filaActual = cabeza;
         for (int i = 0; i < f; i++) filaActual = filaActual->siguiente;
+
         Celda* celdaActual = filaActual->celdas;
         for (int j = 0; j < c; j++) celdaActual = celdaActual->siguiente;
 
         if (celdaActual->descubierta) return false;
+
         celdaActual->descubierta = true;
 
         if (celdaActual->hayMina) return true;
@@ -159,6 +171,7 @@ public:
                 }
             }
         }
+
         return false;
     }
 
@@ -168,34 +181,41 @@ public:
             for (int i = 0; i < f; i++) filaActual = filaActual->siguiente;
 
             Celda* celdaActual = filaActual->celdas;
+
             for (int c = 0; c < columnas; c++) {
                 if (!celdaActual->descubierta) cout << "# ";
                 else if (celdaActual->hayMina) cout << "* ";
                 else cout << celdaActual->minasRededor << " ";
+
                 celdaActual = celdaActual->siguiente;
             }
+
             cout << "\n";
         }
     }
 
     int contarDescubiertas() {
         int total = 0;
+
         for (Fila* f = cabeza; f != nullptr; f = f->siguiente) {
             for (Celda* c = f->celdas; c != nullptr; c = c->siguiente) {
                 if (c->descubierta && !c->hayMina) total++;
             }
         }
+
         return total;
     }
 
     void liberar() {
         for (Fila* f = cabeza; f != nullptr; ) {
             Fila* siguienteFila = f->siguiente;
+
             for (Celda* c = f->celdas; c != nullptr; ) {
                 Celda* siguienteCelda = c->siguiente;
                 delete c;
                 c = siguienteCelda;
             }
+
             delete f;
             f = siguienteFila;
         }
@@ -205,11 +225,13 @@ public:
 class JuegoBuscaminas : public Tablero {
 private:
     int filas, columnas, minas;
+
 public:
     JuegoBuscaminas(int f, int c, int m) : Tablero(f, c) {
         filas = f;
         columnas = c;
         minas = m;
+
         colocarMinas(minas);
         calcularMinasAlrededor();
     }
@@ -220,9 +242,18 @@ public:
 
         while (jugando) {
             imprimirVisible();
+
             int f, c;
             cout << "\nIngrese fila y columna (0-" << filas - 1 << "): ";
+
             cin >> f >> c;
+
+            if (cin.fail()) {
+                cout << "Entrada inválida. Debe ingresar números.\n";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                continue;
+            }
 
             if (f < 0 || f >= filas || c < 0 || c >= columnas) {
                 cout << "Coordenadas inválidas.\n";
@@ -230,6 +261,7 @@ public:
             }
 
             bool perdio = descubrir(f, c);
+
             if (perdio) {
                 cout << "\n¡Pisaste una mina! GAME OVER\n";
                 imprimirDebug();
@@ -244,13 +276,21 @@ public:
                 jugando = false;
             }
         }
+
         liberar();
     }
 };
 
 int main() {
     srand(time(NULL));
-    JuegoBuscaminas juego(Minas_Filas_Columnas, Minas_Filas_Columnas, Minas_Filas_Columnas);
+
+    JuegoBuscaminas juego(
+        Minas_Filas_Columnas,
+        Minas_Filas_Columnas,
+        Minas_Filas_Columnas
+    );
+
     juego.jugar();
+
     return 0;
 }
