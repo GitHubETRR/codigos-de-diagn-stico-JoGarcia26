@@ -1,19 +1,19 @@
-alumnos = {}
+alumnos={}
 
 def agregar_alumno():
-    nombre = input("Nombre del alumno: ").capitalize()
+    nombre = input("Nombre del alumno: ").capitalize().strip()
     alumnos[nombre] = {
         "materias": {}
     }
     print(f"Alumno {nombre} agregado.\n")
 
 def agregar_materia():
-    nombre = input("Nombre del alumno: ").capitalize()
+    nombre = input("Nombre del alumno: ").capitalize().strip()
     if nombre not in alumnos:
         print("El alumno no está registrado.\n")
         return
 
-    materia = input("Nombre de la materia: ").capitalize()
+    materia = input("Nombre de la materia: ").capitalize().strip()
     if materia in alumnos[nombre]["materias"]:
         print("La materia ya existe para este alumno.\n")
     else:
@@ -21,12 +21,12 @@ def agregar_materia():
         print(f"Materia {materia} agregada a {nombre}.\n")
 
 def agregar_nota():
-    nombre = input("Nombre del alumno: ")
+    nombre = input("Nombre del alumno: ").capitalize().strip()
     if nombre not in alumnos:
         print("El alumno no está registrado.\n")
         return
 
-    materia = input("Materia: ").capitalize()
+    materia = input("Materia: ").capitalize().strip()
 
     if materia not in alumnos[nombre]["materias"]:
         print("La materia no existe para este alumno.\n")
@@ -42,7 +42,7 @@ def mostrar_promedio():
         print("El alumno no está registrado.\n")
         return
 
-    materia = input("Materia: ").capitalize()
+    materia = input("Materia: ").capitalize().strip()
 
     if materia not in alumnos[nombre]["materias"]:
         print("El alumno no tiene esa materia.\n")
