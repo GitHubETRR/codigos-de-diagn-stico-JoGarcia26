@@ -16,7 +16,7 @@ public:
     Persona(const string& n, const string& d) : nombre(n), dni(d) {}
 
     virtual void mostrar() const {
-        cout << "Nombre: " << nombre << " | DNI: " << dni << endl;
+        cout << "Nombre: " << nombre << " - DNI: " << dni << endl;
     }
 
     string getDNI() const { return dni; }
