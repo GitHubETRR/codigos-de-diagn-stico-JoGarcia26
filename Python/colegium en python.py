@@ -1,14 +1,14 @@
 alumnos = {}
 
 def agregar_alumno():
-    nombre = input("Nombre del alumno: ")
+    nombre = input("Nombre del alumno: ").capitalize()
     alumnos[nombre] = {
         "materias": {}
     }
     print(f"Alumno {nombre} agregado.\n")
 
 def agregar_materia():
-    nombre = input("Nombre del alumno: ")
+    nombre = input("Nombre del alumno: ").capitalize()
     if nombre not in alumnos:
         print("El alumno no está registrado.\n")
         return
