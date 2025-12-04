@@ -1,66 +1,94 @@
-alumnos= {}
+alumnos = {}
 
 def agregar_alumno():
-  nombre = input("Nombre del alumno: ")
-  materia = input("Materia: ")
-  alumnos[nombre] = {
-    "materia": materia,
-    "notas": []
-  }
-  printf(f"Alumno {nombre} agregado.\n")
+    nombre = input("Nombre del alumno: ")
+    alumnos[nombre] = {
+        "materias": {}
+    }
+    print(f"Alumno {nombre} agregado.\n")
+
+def agregar_materia():
+    nombre = input("Nombre del alumno: ")
+    if nombre not in alumnos:
+        print("El alumno no está registrado.\n")
+        return
+
+    materia = input("Nombre de la materia: ").capitalize()
+    if materia in alumnos[nombre]["materias"]:
+        print("La materia ya existe para este alumno.\n")
+    else:
+        alumnos[nombre]["materias"][materia] = []
+        print(f"Materia {materia} agregada a {nombre}.\n")
 
 def agregar_nota():
-  nombre = input ("Nombre del alumno: ")
-  if nombre not in alumnos:
-    printf("El alumno no esta registrado")
-    return
+    nombre = input("Nombre del alumno: ")
+    if nombre not in alumnos:
+        print("El alumno no está registrado.\n")
+        return
 
-  nota = float(input("Ingrese la nota: "))
-  alumnos[nombre]["notas"].append(nota)
-  printf(f"Nota {nota} cargada a {nombre}\n")
+    materia = input("Materia: ").capitalize()
+
+    if materia not in alumnos[nombre]["materias"]:
+        print("La materia no existe para este alumno.\n")
+        return
+
+    nota = float(input("Ingrese la nota: "))
+    alumnos[nombre]["materias"][materia].append(nota)
+    print(f"Nota {nota} agregada a {materia} de {nombre}.\n")
 
 def mostrar_promedio():
-  nombre = input("Nombre del alumno: ")
-  if nombre not in alumnos:
-    print("El alumno no esta registrado. \n")
-    return
+    nombre = input("Nombre del alumno: ")
+    if nombre not in alumnos:
+        print("El alumno no está registrado.\n")
+        return
 
-  notas = alumnos[nombre]["notas"]
-  if not notas: 
-    print("El alumno no tiene notas cargadas. \n")
-    return
+    materia = input("Materia: ").capitalize()
 
-  promedio = sum(notas) / len(notas)
-  printf(f"Promedio de {nombre}: {promedio: .2f}\n")
+    if materia not in alumnos[nombre]["materias"]:
+        print("El alumno no tiene esa materia.\n")
+        return
+
+    notas = alumnos[nombre]["materias"][materia]
+    if not notas:
+        print("No hay notas cargadas.\n")
+        return
+
+    promedio = sum(notas) / len(notas)
+    print(f"Promedio de {nombre} en {materia}: {promedio:.2f}\n")
 
 def listar_alumnos():
-  if not alumnos:
-    print("Np hay alumnos registrados.\n")
-    return
-  for nombre, datos in alumnos.items():
-    print(f"{nombre}-{datos['materia']} - Notas: {datos['notas']}")
-  print()
+    if not alumnos:
+        print("No hay alumnos registrados.\n")
+        return
 
+    for nombre, datos in alumnos.items():
+        print(f"Alumno: {nombre}")
+        for materia, notas in datos["materias"].items():
+            print(f"  {materia}: {notas}")
+    print()
+    
 while True:
     print("///Colegium///")
     print("1. Agregar alumno")
-    print("2. Agregar nota")
-    print("3. Mostrar promedio")
-    print("4. Listar alumnos")
-    print("5. Salir")
+    print("2. Agregar materia")
+    print("3. Agregar nota")
+    print("4. Mostrar promedio por materia")
+    print("5. Listar alumnos")
+    print("6. Salir")
 
     opcion = input("Elija opción: ")
 
     if opcion == "1":
         agregar_alumno()
     elif opcion == "2":
-        agregar_nota()
+        agregar_materia()
     elif opcion == "3":
-        mostrar_promedio()
+        agregar_nota()
     elif opcion == "4":
-        listar_alumnos()
+        mostrar_promedio()
     elif opcion == "5":
+        listar_alumnos()
+    elif opcion == "6":
         break
     else:
         print("Opción inválida.\n")
-  
