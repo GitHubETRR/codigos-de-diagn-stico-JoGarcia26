@@ -10,14 +10,14 @@ class Celda {
 public:
     int columna;
     bool hayMina;
-    int minasRededor;
+    int minasAlrededor;
     bool descubierta;
     Celda* siguiente;
 
     Celda(int col = 0) {
         columna = col;
         hayMina = false;
-        minasRededor = 0;
+        minasAlrededor = 0;
         descubierta = false;
         siguiente = nullptr;
     }
@@ -129,7 +129,7 @@ public:
                     }
                 }
 
-                celdaActual->minasRededor = minas;
+                celdaActual->minasAlrededor = minas;
             }
         }
     }
@@ -143,7 +143,7 @@ public:
 
             for (int c = 0; c < columnas; c++) {
                 if (celdaActual->hayMina) cout << "* ";
-                else cout << celdaActual->minasRededor << " ";
+                else cout << celdaActual->minasAlrededor << " ";
                 celdaActual = celdaActual->siguiente;
             }
             cout << "\n";
@@ -163,7 +163,7 @@ public:
 
         if (celdaActual->hayMina) return true;
 
-        if (celdaActual->minasRededor == 0) {
+        if (celdaActual->minasAlrededor == 0) {
             for (int df = -1; df <= 1; df++) {
                 for (int dc = -1; dc <= 1; dc++) {
                     if (df == 0 && dc == 0) continue;
@@ -185,7 +185,7 @@ public:
             for (int c = 0; c < columnas; c++) {
                 if (!celdaActual->descubierta) cout << "# ";
                 else if (celdaActual->hayMina) cout << "* ";
-                else cout << celdaActual->minasRededor << " ";
+                else cout << celdaActual->minasAlrededor << " ";
 
                 celdaActual = celdaActual->siguiente;
             }
