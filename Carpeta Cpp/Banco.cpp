@@ -1,11 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <fstream>
 #include <limits>
+#include <sstream>
 
 using namespace std;
 
-// PERSONA 
+// ========================== PERSONA ==========================
 
 class Persona {
 protected:
@@ -13,7 +15,7 @@ protected:
     string dni;
 
 public:
-    Persona(const string& n, const string& d) : nombre(n), dni(d) {}
+    Persona(const string& n = "", const string& d = "") : nombre(n), dni(d) {}
 
     virtual void mostrar() const {
         cout << "Nombre: " << nombre << " - DNI: " << dni << endl;
@@ -23,7 +25,7 @@ public:
     string getNombre() const { return nombre; }
 };
 
-// CUENTAS
+// ========================== CUENTAS ==========================
 
 class Cuenta {
 protected:
@@ -31,15 +33,17 @@ protected:
     double saldo;
 
 public:
-    Cuenta(int num, double s = 0) : numero(num), saldo(s) {}
+    Cuenta(int num = 0, double s = 0) : numero(num), saldo(s) {}
     virtual ~Cuenta() {}
 
     virtual bool retirar(double m) = 0;
 
     void depositar(double m) { saldo += m; }
 
+    virtual string tipo() const = 0;
+
     virtual void mostrar() const {
-        cout << "Cuenta N°" << numero << " | Saldo: $" << saldo << endl;
+        cout << "Cuenta N°" << numero << " | Saldo: $" << saldo;
     }
 
     int getNumero() const { return numero; }
@@ -58,9 +62,12 @@ public:
         return false;
     }
 
+    string tipo() const override { return "CAJA"; }
+
     void mostrar() const override {
         cout << "[Caja de Ahorro] ";
         Cuenta::mostrar();
+        cout << endl;
     }
 };
 
@@ -79,20 +86,24 @@ public:
         return false;
     }
 
+    string tipo() const override { return "CORRIENTE"; }
+
     void mostrar() const override {
         cout << "[Cuenta Corriente] ";
         Cuenta::mostrar();
-        cout << "   Límite: $" << limite << endl;
+        cout << " | Límite: $" << limite << endl;
     }
+
+    double getLimite() const { return limite; }
 };
 
-// CLIENTE
+// ========================== CLIENTE ==========================
 
 class Cliente : public Persona {
     vector<shared_ptr<Cuenta>> cuentas;
 
 public:
-    Cliente(const string& n, const string& d) : Persona(n, d) {}
+    Cliente(const string& n = "", const string& d = "") : Persona(n, d) {}
 
     void agregarCuenta(shared_ptr<Cuenta> c) {
         cuentas.push_back(c);
@@ -108,6 +119,8 @@ public:
         }
     }
 
+    vector<shared_ptr<Cuenta>>& getCuentas() { return cuentas; }
+
     shared_ptr<Cuenta> getCuenta(int num) {
         for (auto& c : cuentas)
             if (c->getNumero() == num)
@@ -116,13 +129,83 @@ public:
     }
 };
 
-// BANCO
+// ========================== BANCO ==========================
 
 class Banco {
     vector<Cliente> clientes;
     int sigCuenta = 1;
 
 public:
+
+    // ----------- GUARDAR DATOS EN TXT ----------
+    void guardarDatos() {
+        ofstream f("banco.txt");
+        if (!f) return;
+
+        for (auto& c : clientes) {
+            f << "# Cliente\n";
+            f << c.getNombre() << "|" << c.getDNI() << "\n";
+
+            for (auto& cuenta : c.getCuentas()) {
+                f << "Cuenta:";
+                f << cuenta->tipo() << "|";
+                f << cuenta->getNumero() << "|";
+                f << cuenta->getSaldo();
+
+                if (cuenta->tipo() == "CORRIENTE") {
+                    auto* cc = dynamic_cast<CuentaCorriente*>(cuenta.get());
+                    f << "|" << cc->getLimite();
+                }
+
+                f << "\n";
+            }
+
+            f << "\n";
+        }
+    }
+
+    // ----------- CARGAR DATOS DESDE TXT ----------
+    void cargarDatos() {
+        ifstream f("banco.txt");
+        if (!f) return;
+
+        string linea;
+        Cliente* actual = nullptr;
+
+        while (getline(f, linea)) {
+            if (linea == "# Cliente") {
+                getline(f, linea);
+                string nombre, dni;
+                stringstream ss(linea);
+                getline(ss, nombre, '|');
+                getline(ss, dni, '|');
+
+                clientes.emplace_back(nombre, dni);
+                actual = &clientes.back();
+            }
+            else if (linea.find("Cuenta:") == 0 && actual) {
+                string tipo;
+                int num;
+                double saldo;
+                stringstream ss(linea.substr(7));
+                getline(ss, tipo, '|');
+                ss >> num;
+                ss.ignore(1);
+                ss >> saldo;
+
+                if (tipo == "CAJA") {
+                    actual->agregarCuenta(make_shared<CajaDeAhorro>(num, saldo));
+                } else {
+                    double limite;
+                    ss.ignore(1);
+                    ss >> limite;
+                    actual->agregarCuenta(make_shared<CuentaCorriente>(num, saldo, limite));
+                }
+
+                if (num >= sigCuenta) sigCuenta = num + 1;
+            }
+        }
+    }
 
     Cliente* buscarCliente(const string& dni) {
         for (auto& c : clientes)
@@ -133,12 +216,10 @@ public:
 
     void crearCliente() {
         string nombre, dni;
-
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
         cout << "Nombre: ";
         getline(cin, nombre);
-
         cout << "DNI: ";
         getline(cin, dni);
 
@@ -158,7 +239,7 @@ public:
 
         Cliente* cli = buscarCliente(dni);
         if (!cli) {
-            cout << "No existe un cliente con ese DNI.\n";
+            cout << "No existe cliente.\n";
             return;
         }
 
@@ -166,14 +247,10 @@ public:
         cout << "1) Caja de Ahorro\n2) Cuenta Corriente\nOpción: ";
         cin >> tipo;
 
-        if (tipo == 1) {
+        if (tipo == 1)
             cli->agregarCuenta(make_shared<CajaDeAhorro>(sigCuenta++));
-        } else if (tipo == 2) {
+        else
             cli->agregarCuenta(make_shared<CuentaCorriente>(sigCuenta++));
-        } else {
-            cout << "Opción inválida.\n";
-            return;
-        }
 
         cout << "Cuenta creada.\n";
     }
@@ -209,18 +286,17 @@ public:
         int num;
         double m;
 
-        cout << "Número de cuenta: ";
+        cout << "Cuenta: ";
         cin >> num;
         cout << "Monto: ";
         cin >> m;
 
         auto c = buscarCuenta(num);
 
-        if (c && c->retirar(m)) {
+        if (c && c->retirar(m))
             cout << "Retiro exitoso.\n";
-        } else {
+        else
             cout << "No se pudo retirar.\n";
-        }
     }
 
     void transferir() {
@@ -241,28 +317,25 @@ public:
             c2->depositar(m);
             cout << "Transferencia realizada.\n";
         } else {
-            cout << "No se pudo completar.\n";
+            cout << "Error en la transferencia.\n";
         }
     }
 
     void mostrarClientes() const {
-        if (clientes.empty()) {
-            cout << "No hay clientes cargados.\n";
-            return;
-        }
-
         for (const auto& c : clientes) {
             c.mostrar();
-            cout << "-----------------------\n";
+            cout << "-------------------\n";
         }
     }
 };
 
+// ========================== MAIN ==========================
 
 int main() {
     Banco b;
-    int op;
+    b.cargarDatos();   // <<< CARGA AUTOMÁTICA AL INICIAR
 
+    int op;
     do {
         cout << "\n=== MENU BANCO ===\n";
         cout << "1) Crear cliente\n";
@@ -282,12 +355,15 @@ int main() {
             case 4: b.retirar(); break;
             case 5: b.transferir(); break;
             case 6: b.mostrarClientes(); break;
-            case 0: cout << "Saliendo...\n"; break;
-            default: cout << "Opción inválida.\n";
+            case 0:
+                b.guardarDatos();   // <<< GUARDA TODO ANTES DE SALIR
+                cout << "Datos guardados. Saliendo...\n";
+                break;
+            default:
+                cout << "Opción inválida.\n";
         }
 
     } while (op != 0);
 
     return 0;
 }
-
